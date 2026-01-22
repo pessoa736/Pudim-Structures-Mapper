@@ -28,7 +28,7 @@ function u.loadEnvFile()
     local LLE = log.inSection("load env")
 
     if ok  then
-        env = env:trim("\n"):trim("\r")
+        env = env:trim("\n"):trim("\r") ---@diagnostic disable-line: param-type-mismatch
         for k, v in string.gmatch(env, "%s*(%w+)%s*=%s*(%w+)%s*") do
             _G[k] = v
         end
