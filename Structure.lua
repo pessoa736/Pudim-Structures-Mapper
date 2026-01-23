@@ -1,79 +1,61 @@
 ---@diagnostic disable: missing-fields
 
----@class RootStructure: table
+---@class SchemeItens 
+---@field type string
 ---@field __type string
----@field Path string
----@field childrens table
----@field __index StructureLib
-
-
----@alias labels string[]
-
-
----@class Components:table
----@field __type string
----@field __index RootStructure
 ---@field name string
----@field labels labels
+---@field labels string[]
+---@field childrens SchemeItens[]
 
-
----@class Regions: table
----@field __type string
----@field __index RootStructure
----@field name string
----@field path string
----@field labels labels
----@field childrens table<any, Regions|Components|nil>
-
-
+---@alias Scheme SchemeItens[]
 
 ---@class StructureLib:table
 ---@field __type string
----@field CreateRootStructure fun(Self: StructureLib, Path?: string): RootStructure
----@field AddRegion fun(Self: StructureLib, name?: string, label?: labels)
-
+---@field Create fun(Self: StructureLib, Scheme: Scheme): any
+---@field InnerCreateCalda fun(name: string, type: string, labels: string[], childrens?: SchemeItens[]): SchemeItens
+---@field IsCalda fun(data: table<any, any> ): boolean, string
 
 
 ---@type StructureLib
-local Stru = {}
+local StructureLib = {}
 
-function Stru:CreateRootStructure(Path)
-    ---@type RootStructure
-    local Root = {
-        __type = "Root",
-        Path = Path or debug.getinfo(1, "S").source:match("@(.*/)") or "./",
-        childrens = {},
-        __index = Stru,
+
+function StructureLib:Create(scheme)
+    local Stru = {}
+    
+    for k, v in pairs(scheme) do 
+        local Is, t = self.IsCalda(v)
+        if Is then
+            Stru[k] = v
+        elseif t == "table" then
+            Stru[k] = self:Create(v)
+        else
+            Stru[k] = nil
+        end
+    end
+
+    return Stru
+end
+
+function StructureLib.InnerCreateCalda(name, type, labels, childrens)
+    return {
+        __type = "calda",
+        name = name,
+        type = type,
+        labels = labels,
+        childrens = childrens or {}
     }
+end
 
-    return setmetatable(Root, Root)
+function StructureLib.IsCalda(data)
+    local td = type(data)
+    if td == "table" then
+        if data.__type == "calda" then
+            return true, "calda"
+        end
+    end
+    return false, td
 end
 
 
-
-
----@cast Stru RootStructure|StructureLib
-function Stru:AddRegion(name, labels)
-    
-    if self.__type == "lib" or self.__type == "Component" then 
-        error("expected add a Region on RootStructure or other Region")
-    end
-    
-    ---@type Regions
-    local region = {
-        name = name or #self.childrens .. "Region",
-        labels = labels or {},
-        path = "/"..name,
-        __index = Stru,
-        __type = "Region"
-    }
-    
-    if self.__type == "Root" or self.__type == "Region" then
-        self.childrens[name] = setmetatable(region, region)
-    else 
-        error("type not expected")
-    end
-end
-
-
-return Stru
+return StructureLib

@@ -10,6 +10,7 @@ u.loadEnvFile()
 
 ---@type boolean
 TESTS = TESTS or false
+TESTS_SANDBOX = TESTS_SANDBOX or false
 DEBUG = DEBUG or false
 
 
@@ -26,7 +27,6 @@ local PSM = {}
 PSM.Structure = require("Structure") or {}
 PSM.Scaner = require("Scaner") or {}
 PSM.Transform = require("Transform") or {}
-PSM.Return = require("Return") or {}
 PSM.Cache = require("Cache") or {}
 
 
@@ -34,5 +34,11 @@ if TESTS then
     require("test")(PSM)
     log.show()
 end
+
+if TESTS_SANDBOX then 
+    require("test_sandbox")(PSM)
+    log.show()
+end
+
 
 return PSM
