@@ -18,6 +18,7 @@
 
 ---@type StructureLib
 local StructureLib = {}
+StructureLib.__type = "pudimLib"
 
 
 function StructureLib:Create(scheme)

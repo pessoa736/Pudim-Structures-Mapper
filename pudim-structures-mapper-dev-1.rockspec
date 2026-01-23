@@ -15,7 +15,8 @@ description = {
 }
 dependencies = {
    "lua-string",
-   "loglua"
+   "loglua",
+   "lua >= 5.5",
 }
 build_dependencies = {
 }
